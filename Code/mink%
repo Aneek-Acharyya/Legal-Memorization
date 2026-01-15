@@ -1,0 +1,465 @@
+# -*- coding: utf-8 -*-
+"""Mink% - Modified for Local Model
+
+Min-K% Prob Memorization Detection
+Based on "Detecting Pretraining Data from Large Language Models" paper
+Adapted for custom legal dataset with local Llama-2-7b model
+"""
+
+#import logging
+#logging.basicConfig(level='ERROR')
+import numpy as np
+import pandas as pd
+import torch
+import torch.nn.functional as F
+from transformers import AutoTokenizer, AutoModelForCausalLM
+from tqdm import tqdm
+import matplotlib.pyplot as plt
+import json
+from collections import defaultdict
+import warnings
+warnings.filterwarnings('ignore')
+
+class MinKProbDetector:
+    """
+    Min-K% Prob method for detecting memorization in language models
+
+    This implementation follows the methodology from:
+    "Detecting Pretraining Data from Large Language Models"
+    """
+
+    def __init__(self, model_path="/store/subinay/Documents/rhetorical_rule/probe/Llama-2-7b", device=None):
+        """
+        Initialize the detector with a language model
+
+        Args:
+            model_path (str): Local path to the model
+            device (str): Device to run the model on
+        """
+        self.model_path = model_path
+        self.device = device if device else ('cuda' if torch.cuda.is_available() else 'cpu')
+
+        print(f"Loading model from: {model_path}")
+        print(f"Using device: {self.device}")
+
+        # Load tokenizer and model from local path
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path, local_files_only=True)
+
+        # Add padding token if not present
+        if self.tokenizer.pad_token is None:
+            self.tokenizer.pad_token = self.tokenizer.eos_token
+
+        # Load model with appropriate device mapping
+        if torch.cuda.is_available():
+            self.model = AutoModelForCausalLM.from_pretrained(
+                model_path,
+                local_files_only=True,
+                return_dict=True,
+                device_map='auto',
+                torch_dtype=torch.float16,  # Use half precision to save memory
+                low_cpu_mem_usage=True
+            )
+        else:
+            self.model = AutoModelForCausalLM.from_pretrained(
+                model_path,
+                local_files_only=True,
+                return_dict=True
+            )
+            self.model.to(self.device)
+
+        self.model.eval()
+        print(f"Model loaded successfully on {self.device}")
+
+    def calculate_token_probabilities(self, text):
+        """
+        Calculate token-level log probabilities for a given text
+
+        Args:
+            text (str): Input text
+
+        Returns:
+            tuple: (perplexity, token_log_probs, avg_log_likelihood)
+        """
+        # Tokenize the input text
+        input_ids = torch.tensor(self.tokenizer.encode(text)).unsqueeze(0)
+        input_ids = input_ids.to(self.device)
+
+        with torch.no_grad():
+            outputs = self.model(input_ids, labels=input_ids)
+            loss = outputs.loss
+            logits = outputs.logits
+
+        # Calculate log probabilities for each token
+        log_probabilities = F.log_softmax(logits, dim=-1)
+
+        # Extract probabilities for actual tokens (excluding first token for prediction)
+        token_log_probs = []
+        input_ids_processed = input_ids[0][1:]  # Skip first token
+
+        for i, token_id in enumerate(input_ids_processed):
+            log_prob = log_probabilities[0, i, token_id].item()
+            token_log_probs.append(log_prob)
+
+        perplexity = torch.exp(loss).item()
+        avg_log_likelihood = loss.item()
+
+        return perplexity, token_log_probs, avg_log_likelihood
+
+    def min_k_prob(self, text, k_percent=20):
+        """
+        Calculate Min-K% Prob score for memorization detection
+
+        Args:
+            text (str): Input text to analyze
+            k_percent (int): Percentage of tokens with minimum probabilities to consider
+
+        Returns:
+            dict: Dictionary containing various metrics including Min-K% Prob
+        """
+        # Calculate token probabilities
+        perplexity, token_log_probs, avg_log_likelihood = self.calculate_token_probabilities(text)
+
+        # Calculate Min-K% Prob
+        k_length = int(len(token_log_probs) * (k_percent / 100))
+        if k_length == 0:
+            k_length = 1
+
+        # Sort probabilities and take the k% lowest (most negative log probs)
+        sorted_log_probs = sorted(token_log_probs)
+        min_k_log_probs = sorted_log_probs[:k_length]
+        min_k_prob_score = -np.mean(min_k_log_probs)  # Negative because we want positive scores for low prob
+
+        # Additional metrics for comparison
+        metrics = {
+            'text': text,
+            'perplexity': perplexity,
+            'avg_log_likelihood': avg_log_likelihood,
+            f'min_{k_percent}_prob': min_k_prob_score,
+            'num_tokens': len(token_log_probs),
+            'k_length': k_length
+        }
+
+        # Calculate different k% values as in the original paper
+        for k in [5, 10, 20, 30, 40, 50]:
+            k_len = int(len(token_log_probs) * (k / 100))
+            if k_len == 0:
+                k_len = 1
+            min_k_probs = sorted(token_log_probs)[:k_len]
+            metrics[f'min_{k}_prob'] = -np.mean(min_k_probs)
+
+        return metrics
+
+    def analyze_dataset(self, texts, k_percent=20, batch_size=1):
+        """
+        Analyze a list of texts using Min-K% Prob
+
+        Args:
+            texts (list): List of text strings to analyze
+            k_percent (int): K percentage for Min-K% Prob
+            batch_size (int): Batch size for processing (keep at 1 for memory efficiency)
+
+        Returns:
+            list: List of dictionaries containing metrics for each text
+        """
+        results = []
+
+        print(f"Analyzing {len(texts)} texts with Min-{k_percent}% Prob...")
+
+        for i, text in enumerate(tqdm(texts, desc="Processing texts")):
+            try:
+                # Clean text
+                text = text.replace('\x00', '').strip()
+                if not text:
+                    continue
+
+                metrics = self.min_k_prob(text, k_percent)
+                metrics['text_id'] = i
+                results.append(metrics)
+
+            except Exception as e:
+                print(f"Error processing text {i}: {str(e)}")
+                continue
+
+            # Clear cache periodically to prevent memory issues
+            if (i + 1) % 50 == 0:
+                torch.cuda.empty_cache() if torch.cuda.is_available() else None
+
+        return results
+
+    def create_summary_statistics(self, results):
+        """
+        Create summary statistics from analysis results
+
+        Args:
+            results (list): Results from analyze_dataset
+
+        Returns:
+            dict: Summary statistics
+        """
+        if not results:
+            return {}
+
+        # Extract Min-20% Prob scores (default)
+        scores = [r['min_20_prob'] for r in results if 'min_20_prob' in r]
+        perplexities = [r['perplexity'] for r in results if 'perplexity' in r]
+
+        summary = {
+            'total_texts': len(results),
+            'min_20_prob_stats': {
+                'mean': np.mean(scores),
+                'std': np.std(scores),
+                'min': np.min(scores),
+                'max': np.max(scores),
+                'median': np.median(scores),
+                'q25': np.percentile(scores, 25),
+                'q75': np.percentile(scores, 75)
+            },
+            'perplexity_stats': {
+                'mean': np.mean(perplexities),
+                'std': np.std(perplexities),
+                'min': np.min(perplexities),
+                'max': np.max(perplexities),
+                'median': np.median(perplexities)
+            }
+        }
+
+        return summary
+
+def load_legal_dataset(file_path='/store/subinay/Documents/rhetorical_rule/memorization/memo/dataset/legal_dataset_IN_NON_MEMBER_16.csv'):
+    """
+    Load the legal dataset from CSV file
+
+    Args:
+        file_path (str): Path to the CSV file
+
+    Returns:
+        list: List of text strings
+    """
+    try:
+        df = pd.read_csv(file_path)
+        texts = df['Input'].dropna().tolist()
+        print(f"Loaded {len(texts)} texts from {file_path}")
+        return texts
+    except Exception as e:
+        print(f"Error loading dataset: {str(e)}")
+        return []
+
+def plot_results(results, save_path='mink_prob_results.png'):
+    """
+    Create visualizations of the Min-K% Prob results
+
+    Args:
+        results (list): Results from analysis
+        save_path (str): Path to save the plot
+    """
+    if not results:
+        print("No results to plot")
+        return
+
+    fig, axes = plt.subplots(2, 2, figsize=(15, 10))
+
+    # Extract scores for different k values
+    k_values = [5, 10, 20, 30, 40, 50]
+    k_scores = {}
+    for k in k_values:
+        k_scores[k] = [r[f'min_{k}_prob'] for r in results if f'min_{k}_prob' in r]
+
+    # Plot 1: Min-K% Prob distribution for different k values
+    axes[0, 0].boxplot([k_scores[k] for k in k_values], labels=[f'{k}%' for k in k_values])
+    axes[0, 0].set_title('Min-K% Prob Score Distribution')
+    axes[0, 0].set_xlabel('K Percentage')
+    axes[0, 0].set_ylabel('Min-K% Prob Score')
+    axes[0, 0].grid(True, alpha=0.3)
+
+    # Plot 2: Min-20% Prob histogram
+    min_20_scores = k_scores[20]
+    axes[0, 1].hist(min_20_scores, bins=30, alpha=0.7, color='skyblue', edgecolor='black')
+    axes[0, 1].set_title('Min-20% Prob Score Distribution')
+    axes[0, 1].set_xlabel('Min-20% Prob Score')
+    axes[0, 1].set_ylabel('Frequency')
+    axes[0, 1].axvline(np.mean(min_20_scores), color='red', linestyle='--',
+                      label=f'Mean: {np.mean(min_20_scores):.3f}')
+    axes[0, 1].legend()
+    axes[0, 1].grid(True, alpha=0.3)
+
+    # Plot 3: Perplexity vs Min-20% Prob scatter
+    perplexities = [r['perplexity'] for r in results]
+    axes[1, 0].scatter(perplexities, min_20_scores, alpha=0.6, color='green')
+    axes[1, 0].set_title('Perplexity vs Min-20% Prob Score')
+    axes[1, 0].set_xlabel('Perplexity')
+    axes[1, 0].set_ylabel('Min-20% Prob Score')
+    axes[1, 0].grid(True, alpha=0.3)
+
+    # Plot 4: Text length vs Min-20% Prob
+    text_lengths = [r['num_tokens'] for r in results]
+    axes[1, 1].scatter(text_lengths, min_20_scores, alpha=0.6, color='orange')
+    axes[1, 1].set_title('Text Length vs Min-20% Prob Score')
+    axes[1, 1].set_xlabel('Number of Tokens')
+    axes[1, 1].set_ylabel('Min-20% Prob Score')
+    axes[1, 1].grid(True, alpha=0.3)
+
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    plt.show()
+
+    print(f"Plot saved to {save_path}")
+
+def save_results_to_json(results, summary, file_path='mink_prob_results.json'):
+    """
+    Save results to JSON file
+
+    Args:
+        results (list): Analysis results
+        summary (dict): Summary statistics
+        file_path (str): Path to save JSON file
+    """
+    output_data = {
+        'summary': summary,
+        'detailed_results': results,
+        'metadata': {
+            'total_texts_analyzed': len(results),
+            'model_used': '/store/subinay/Documents/rhetorical_rule/probe/Llama-2-7b',
+            'method': 'Min-K% Prob',
+            'k_percentage': 20
+        }
+    }
+
+    with open(file_path, 'w') as f:
+        json.dump(output_data, f, indent=2, default=str)
+
+    print(f"Results saved to {file_path}")
+
+def main():
+    """
+    Main function to run the Min-K% Prob analysis on legal dataset
+    """
+    print("=" * 60)
+    print("Min-K% Prob Memorization Detection")
+    print("Legal Dataset Analysis with Local Llama-2-7b")
+    print("=" * 60)
+
+    # Load dataset
+    print("\n1. Loading legal dataset...")
+    texts = load_legal_dataset('/store/subinay/Documents/rhetorical_rule/memorization/memo/dataset/legal_dataset_IN_NON_MEMBER_16.csv')
+
+    if not texts:
+        print("Failed to load dataset. Please ensure 'legal_dataset_UK_16.csv' is in the current directory.")
+        return
+
+    print(f"Dataset loaded: {len(texts)} legal texts")
+    print(f"Average text length: {np.mean([len(text.split()) for text in texts]):.1f} words")
+
+    # Initialize detector with local model path
+    print("\n2. Initializing Min-K% Prob detector...")
+    try:
+        detector = MinKProbDetector(
+            model_path="/store/subinay/Documents/rhetorical_rule/probe/Llama-2-7b"  )
+    except Exception as e:
+        print(f"Error initializing model: {str(e)}")
+        print("Please check:")
+        print("  - Model path is correct")
+        print("  - Model files exist at the specified location")
+        print("  - You have sufficient GPU memory")
+        return
+
+    # Run analysis
+    print("\n3. Running Min-K% Prob analysis (k=20)...")
+    results = detector.analyze_dataset(texts, k_percent=20)
+
+    if not results:
+        print("No results generated. Check for errors in processing.")
+        return
+
+    print(f"Successfully analyzed {len(results)} texts")
+
+    # Generate summary statistics
+    print("\n4. Generating summary statistics...")
+    summary = detector.create_summary_statistics(results)
+
+    # Display results
+    print("\n" + "=" * 60)
+    print("RESULTS SUMMARY")
+    print("=" * 60)
+
+    print(f"Total texts analyzed: {summary['total_texts']}")
+    print(f"\nMin-20% Prob Score Statistics:")
+    stats = summary['min_20_prob_stats']
+    print(f"  Mean: {stats['mean']:.4f}")
+    print(f"  Std:  {stats['std']:.4f}")
+    print(f"  Min:  {stats['min']:.4f}")
+    print(f"  Max:  {stats['max']:.4f}")
+    print(f"  Median: {stats['median']:.4f}")
+    print(f"  Q25:  {stats['q25']:.4f}")
+    print(f"  Q75:  {stats['q75']:.4f}")
+
+    print(f"\nPerplexity Statistics:")
+    ppl_stats = summary['perplexity_stats']
+    print(f"  Mean: {ppl_stats['mean']:.4f}")
+    print(f"  Std:  {ppl_stats['std']:.4f}")
+    print(f"  Min:  {ppl_stats['min']:.4f}")
+    print(f"  Max:  {ppl_stats['max']:.4f}")
+    print(f"  Median: {ppl_stats['median']:.4f}")
+
+    # Show sample results
+    print(f"\nSample Results (first 5 texts):")
+    print("-" * 60)
+    for i, result in enumerate(results[:5]):
+        print(f"Text {i+1}:")
+        print(f"  Text preview: {result['text'][:100]}...")
+        print(f"  Min-20% Prob Score: {result['min_20_prob']:.4f}")
+        print(f"  Perplexity: {result['perplexity']:.4f}")
+        print(f"  Tokens: {result['num_tokens']}")
+        print()
+
+    # Generate visualizations
+    print("5. Generating visualizations...")
+    plot_results(results)
+
+    # Save results
+    print("6. Saving results...")
+    save_results_to_json(results, summary)
+
+    print("\n" + "=" * 60)
+    print("ANALYSIS COMPLETE!")
+    print("=" * 60)
+    print("Files generated:")
+    print("- mink_prob_results.png (visualizations)")
+    print("- mink_prob_results.json (detailed results)")
+
+    # Interpretation guidance
+    print(f"\nInterpretation Guide:")
+    print(f"- Higher Min-K% Prob scores suggest higher likelihood of memorization")
+    print(f"- Lower perplexity typically indicates more familiar/memorized content")
+    print(f"- The mean Min-20% Prob score is {stats['mean']:.4f}")
+    print(f"- Texts with scores > {stats['q75']:.4f} (75th percentile) may show stronger memorization signals")
+
+def run_quick_test():
+    """
+    Run a quick test with a small sample to verify everything works
+    """
+    print("Running quick test...")
+
+    # Test with a small sample
+    test_texts = [
+        "This is a test sentence for the Min-K probability method.",
+        "The legal system requires careful analysis of precedent cases.",
+        "Machine learning models can memorize training data patterns."
+    ]
+
+    try:
+        detector = MinKProbDetector(
+            model_path="/store/subinay/Documents/rhetorical_rule/probe/Llama-2-7b"
+        )
+        results = detector.analyze_dataset(test_texts, k_percent=20)
+
+        print("Quick test successful!")
+        for i, result in enumerate(results):
+            print(f"Test {i+1}: Min-20% Prob = {result['min_20_prob']:.4f}")
+
+        return True
+    except Exception as e:
+        print(f"Quick test failed: {str(e)}")
+        return False
+
+if __name__ == "__main__":
+    main()
