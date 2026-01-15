@@ -1,0 +1,332 @@
+[
+    {
+        "Input":"Being aggrieved by the said order of conviction,",
+        "perplexity":32.0416412354,
+        "log_perplexity":3.4670363455,
+        "zlib_entropy":56,
+        "zlib_ratio":16.1521237218,
+        "perplexity_lower":25.8397750854,
+        "log_perplexity_lower":3.2519149748,
+        "lowercase_ratio":0.9379523751
+    },
+    {
+        "Input":"All of them were on the road in",
+        "perplexity":95.7226333618,
+        "log_perplexity":4.5614547738,
+        "zlib_entropy":36,
+        "zlib_ratio":7.8922189928,
+        "perplexity_lower":72.0618667603,
+        "log_perplexity_lower":4.2775250106,
+        "lowercase_ratio":0.9377545592
+    },
+    {
+        "Input":"It was followed by all accused assaulting deceased",
+        "perplexity":300.2311401367,
+        "log_perplexity":5.7045526451,
+        "zlib_entropy":55,
+        "zlib_ratio":9.6414221099,
+        "perplexity_lower":281.1475830078,
+        "log_perplexity_lower":5.6388797379,
+        "lowercase_ratio":0.9884876324
+    },
+    {
+        "Input":"Informant's daughter Kranti also intervened to whom accused",
+        "perplexity":667.7025756836,
+        "log_perplexity":6.5038428284,
+        "zlib_entropy":64,
+        "zlib_ratio":9.8403361964,
+        "perplexity_lower":516.4102783203,
+        "log_perplexity_lower":6.2469015626,
+        "lowercase_ratio":0.9604939306
+    },
+    {
+        "Input":"Deceased Pramod came out of the house by",
+        "perplexity":105.7213287354,
+        "log_perplexity":4.6608066581,
+        "zlib_entropy":48,
+        "zlib_ratio":10.2986464621,
+        "perplexity_lower":159.4420471191,
+        "log_perplexity_lower":5.0716805153,
+        "lowercase_ratio":1.0881550957
+    },
+    {
+        "Input":"She also stated that in the said incident,",
+        "perplexity":74.5248336792,
+        "log_perplexity":4.3111324078,
+        "zlib_entropy":47,
+        "zlib_ratio":10.9020080002,
+        "perplexity_lower":88.3368530273,
+        "log_perplexity_lower":4.4811573821,
+        "lowercase_ratio":1.0394385879
+    },
+    {
+        "Input":"The accused also beat her mother PW-1 Sangita.",
+        "perplexity":387.3154602051,
+        "log_perplexity":5.9592395036,
+        "zlib_entropy":51,
+        "zlib_ratio":8.5581389989,
+        "perplexity_lower":916.0423583984,
+        "log_perplexity_lower":6.8200626064,
+        "lowercase_ratio":1.1444518386
+    },
+    {
+        "Input":"In other words in absence of evidence of",
+        "perplexity":141.5138092041,
+        "log_perplexity":4.9523973039,
+        "zlib_entropy":42,
+        "zlib_ratio":8.4807412295,
+        "perplexity_lower":119.4207305908,
+        "log_perplexity_lower":4.7826528089,
+        "lowercase_ratio":0.9657247825
+    },
+    {
+        "Input":"The incident of quarrel and beating must have",
+        "perplexity":164.5320739746,
+        "log_perplexity":5.1031055298,
+        "zlib_entropy":51,
+        "zlib_ratio":9.9939144316,
+        "perplexity_lower":174.5926513672,
+        "log_perplexity_lower":5.1624555541,
+        "lowercase_ratio":1.0116301777
+    },
+    {
+        "Input":"The suggestion given by the accused during the",
+        "perplexity":260.8391113281,
+        "log_perplexity":5.5639037856,
+        "zlib_entropy":50,
+        "zlib_ratio":8.9864961594,
+        "perplexity_lower":206.9166259766,
+        "log_perplexity_lower":5.3323159391,
+        "lowercase_ratio":0.9583767341
+    },
+    {
+        "Input":"It was at that time the deceased questioned",
+        "perplexity":109.8128662109,
+        "log_perplexity":4.6987777008,
+        "zlib_entropy":47,
+        "zlib_ratio":10.0026013131,
+        "perplexity_lower":93.6527786255,
+        "log_perplexity_lower":4.5395940988,
+        "lowercase_ratio":0.9661223382
+    },
+    {
+        "Input":"At 11:15 PM, when they were proceeding from",
+        "perplexity":23.7246570587,
+        "log_perplexity":3.1665148895,
+        "zlib_entropy":51,
+        "zlib_ratio":16.106035114,
+        "perplexity_lower":20.7816772461,
+        "log_perplexity_lower":3.0340716969,
+        "lowercase_ratio":0.9581738292
+    },
+    {
+        "Input":"Out of rage, the appellant brought one hockey",
+        "perplexity":199.1408843994,
+        "log_perplexity":5.294012536,
+        "zlib_entropy":52,
+        "zlib_ratio":9.8224172395,
+        "perplexity_lower":156.7056884766,
+        "log_perplexity_lower":5.0543694504,
+        "lowercase_ratio":0.9547331851
+    },
+    {
+        "Input":"He has deposed that he was told by",
+        "perplexity":83.3132781982,
+        "log_perplexity":4.4226079386,
+        "zlib_entropy":41,
+        "zlib_ratio":9.2705481854,
+        "perplexity_lower":57.265209198,
+        "log_perplexity_lower":4.04769327,
+        "lowercase_ratio":0.9152276951
+    },
+    {
+        "Input":"Accused Raj Kumar had taken out slipper from",
+        "perplexity":451.3295898438,
+        "log_perplexity":6.1121978705,
+        "zlib_entropy":52,
+        "zlib_ratio":8.507577978,
+        "perplexity_lower":289.0276794434,
+        "log_perplexity_lower":5.6665224601,
+        "lowercase_ratio":0.9270842633
+    },
+    {
+        "Input":"He found the accused and deceased engaged in",
+        "perplexity":222.8130340576,
+        "log_perplexity":5.4063330075,
+        "zlib_entropy":47,
+        "zlib_ratio":8.6935081385,
+        "perplexity_lower":110.1156768799,
+        "log_perplexity_lower":4.7015314212,
+        "lowercase_ratio":0.8696340782
+    },
+    {
+        "Input":"Page 2 of 54 converted into one under",
+        "perplexity":164.8820495605,
+        "log_perplexity":5.1052303671,
+        "zlib_entropy":45,
+        "zlib_ratio":8.8144896046,
+        "perplexity_lower":141.442565918,
+        "log_perplexity_lower":4.9518937401,
+        "lowercase_ratio":0.9699647977
+    },
+    {
+        "Input":"That Ayub Khan also informed them that his",
+        "perplexity":212.1390838623,
+        "log_perplexity":5.3572421155,
+        "zlib_entropy":47,
+        "zlib_ratio":8.773170782,
+        "perplexity_lower":181.0000457764,
+        "log_perplexity_lower":5.1984972842,
+        "lowercase_ratio":0.9703681805
+    },
+    {
+        "Input":"The head injury is sufficient to cause death",
+        "perplexity":134.8521118164,
+        "log_perplexity":4.9041787099,
+        "zlib_entropy":52,
+        "zlib_ratio":10.6032025086,
+        "perplexity_lower":118.2580566406,
+        "log_perplexity_lower":4.7728691573,
+        "lowercase_ratio":0.9732249658
+    },
+    {
+        "Input":"On the day of the incident, P.W.6 was",
+        "perplexity":26.7369823456,
+        "log_perplexity":3.2860477136,
+        "zlib_entropy":41,
+        "zlib_ratio":12.4769947284,
+        "perplexity_lower":42.7372894287,
+        "log_perplexity_lower":3.7550718279,
+        "lowercase_ratio":1.1427319854
+    },
+    {
+        "Input":"This links the cause of death directly to",
+        "perplexity":214.9864349365,
+        "log_perplexity":5.3705749328,
+        "zlib_entropy":49,
+        "zlib_ratio":9.1237903973,
+        "perplexity_lower":159.8934631348,
+        "log_perplexity_lower":5.074507738,
+        "lowercase_ratio":0.9448723464
+    },
+    {
+        "Input":"The case would, therefore, be of murder falling",
+        "perplexity":348.3733825684,
+        "log_perplexity":5.853274843,
+        "zlib_entropy":55,
+        "zlib_ratio":9.3964492485,
+        "perplexity_lower":404.9778747559,
+        "log_perplexity_lower":6.0038324354,
+        "lowercase_ratio":1.0257219414
+    },
+    {
+        "Input":"He told him that he was senior in",
+        "perplexity":151.6453399658,
+        "log_perplexity":5.0215445048,
+        "zlib_entropy":41,
+        "zlib_ratio":8.1648186053,
+        "perplexity_lower":105.8034362793,
+        "log_perplexity_lower":4.6615829979,
+        "lowercase_ratio":0.9283165754
+    },
+    {
+        "Input":"The case would, therefore, be of murder falling",
+        "perplexity":348.3733825684,
+        "log_perplexity":5.853274843,
+        "zlib_entropy":55,
+        "zlib_ratio":9.3964492485,
+        "perplexity_lower":404.9778747559,
+        "log_perplexity_lower":6.0038324354,
+        "lowercase_ratio":1.0257219414
+    },
+    {
+        "Input":"Postmortem report is Ex.P9. 5 On perusal of",
+        "perplexity":107.188117981,
+        "log_perplexity":4.6745854028,
+        "zlib_entropy":49,
+        "zlib_ratio":10.482213026,
+        "perplexity_lower":133.0378417969,
+        "log_perplexity_lower":4.8906336125,
+        "lowercase_ratio":1.0462176196
+    },
+    {
+        "Input":"The first exception is subject to the respective",
+        "perplexity":277.9438476562,
+        "log_perplexity":5.6274191064,
+        "zlib_entropy":53,
+        "zlib_ratio":9.4181718115,
+        "perplexity_lower":368.501373291,
+        "log_perplexity_lower":5.9094444383,
+        "lowercase_ratio":1.0501162836
+    },
+    {
+        "Input":"After forcing the victim into the gypsy, all",
+        "perplexity":235.3752746582,
+        "log_perplexity":5.4611811539,
+        "zlib_entropy":48,
+        "zlib_ratio":8.7893074131,
+        "perplexity_lower":193.6846008301,
+        "log_perplexity_lower":5.2662310671,
+        "lowercase_ratio":0.9643025783
+    },
+    {
+        "Input":"He has further stated that the accused had",
+        "perplexity":74.0437088013,
+        "log_perplexity":4.3046555783,
+        "zlib_entropy":47,
+        "zlib_ratio":10.9184112747,
+        "perplexity_lower":88.0683441162,
+        "log_perplexity_lower":4.4781131507,
+        "lowercase_ratio":1.0402953429
+    },
+    {
+        "Input":"Mumtaz) were working in his shop, two boys",
+        "perplexity":111.5332336426,
+        "log_perplexity":4.7143226061,
+        "zlib_entropy":50,
+        "zlib_ratio":10.6059776087,
+        "perplexity_lower":113.1840133667,
+        "log_perplexity_lower":4.7290149311,
+        "lowercase_ratio":1.0031165294
+    },
+    {
+        "Input":"At that time, all the accused were present",
+        "perplexity":49.4274673462,
+        "log_perplexity":3.9005062888,
+        "zlib_entropy":47,
+        "zlib_ratio":12.0497177853,
+        "perplexity_lower":53.0012626648,
+        "log_perplexity_lower":3.9703157371,
+        "lowercase_ratio":1.0178975351
+    },
+    {
+        "Input":"He heard that Bamia Pingua had committed the",
+        "perplexity":454.6785888672,
+        "log_perplexity":6.1195907712,
+        "zlib_entropy":50,
+        "zlib_ratio":8.1704809797,
+        "perplexity_lower":518.6552124023,
+        "log_perplexity_lower":6.2512393318,
+        "lowercase_ratio":1.0215126412
+    },
+    {
+        "Input":"In the trial of Sessions Case no. 37",
+        "perplexity":112.5995178223,
+        "log_perplexity":4.7238374335,
+        "zlib_entropy":44,
+        "zlib_ratio":9.3144610964,
+        "perplexity_lower":104.2384262085,
+        "log_perplexity_lower":4.6466808349,
+        "lowercase_ratio":0.9836665424
+    },
+    {
+        "Input":"Ramai Konda and Suleman Tuti told these people",
+        "perplexity":1403.0104980469,
+        "log_perplexity":7.2463755626,
+        "zlib_entropy":54,
+        "zlib_ratio":7.4520012844,
+        "perplexity_lower":976.2497558594,
+        "log_perplexity_lower":6.8837184511,
+        "lowercase_ratio":0.94995331
+    }
+]
